@@ -36,18 +36,15 @@ echo -e "Input configuration:\n\tFQ1: $infq1\n\tFQ2: $infq2\n\tOUTDIR: $outdir\n
 
 #Some parameters to be provided by the user
 #1. software  
-bin=/data/lush-dev/wangtaifu/LUSH_WGS_paper/tools
-#bin=/USER_HOME  # Fill it according to the user's real directory
+bin=/USER_HOME  # Fill it according to the user's real directory
 SOAPnuke=$bin/SOAPnuke-SOAPnuke2.1.5/SOAPnuke
 java=$bin/java8/jdk1.8.0_60/bin/java
 bwa=$bin/bwa
 gatk=$bin/gatk-4.1.4.1/gatk-package-4.1.4.1-local.jar
 samtools=$bin/samtools
 #2. Reference files
-db=/data/lush-dev/wangtaifu/LUSH_WGS_paper/db
-fasta=$db/hg19/ref/hg19.fasta
-#db=/USER_HOME  #Fill it according to the user's real directory
-#fasta=$db/hg19/hg19.fasta
+db=/USER_HOME  #Fill it according to the user's real directory
+fasta=$db/hg19/hg19.fasta
 db_bqsr_mills=$db/hg19/gatk/Mills_and_1000G_gold_standard.indels.hg19.vcf.gz
 db_bqsr_1000g=$db/hg19/gatk/1000G_phase1.indels.hg19.vcf.gz
 db_bqsr_dbsnp=$db/hg19/gatk/dbsnp_151.hg19.vcf.gz
