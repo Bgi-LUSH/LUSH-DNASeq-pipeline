@@ -18,7 +18,7 @@ Example:
 LUSH_pipeline.sh -i fq.config -t 40 -o ./  -m Y -s samplename
 ```
 
-fq.config should be:
+fq.config should be like this:
 ```
 /PATH/MGISEQ2000_PCR-free_NA12878_30X_1.fq.gz   NA12878_30X_1   @RG\tID:NA12878_30X.1\tLB:NA12878_30X\tSM:NA12878_30X\tPL:COMPLETE\tCN:BGI
 /PATH/MGISEQ2000_PCR-free_NA12878_30X_2.fq.gz   NA12878_30X_2
