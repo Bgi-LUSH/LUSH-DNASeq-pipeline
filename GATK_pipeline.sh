@@ -2,23 +2,25 @@
 
 usage() {
     echo "Usage:"
-    echo "  $0 [-i FQFile] [-t THREAD] [-o OUTDIR] [-m MODEL] [-s PREFIX]"
+    echo "  $0 [-i FQFile] [-t THREAD] [-o OUTDIR] [-m MODEL] [-s PREFIX] [-p SPARK]"
     echo "Description:"
     echo "    FQFile, the path of INPUT fastq file, should be like '/path/fastq1,/path/fatq2'"
     echo "    THREAD, the number of thread [10]"
     echo "    OUTDIR, the path of outdir [./]"
     echo "    PREFIX, the prefix of outputfile [GATKtest]"
 	echo "    MODE, GVCF or not [Y/N]"
+    echo "    SPARK, Spark or not [Y/N]"
     exit 1
 }
 
-while getopts i:t:o:s:m:h OPT; do
+while getopts i:t:o:s:m:p:h OPT; do
     case $OPT in
 		i) FQFile="$OPTARG";;
 		t) THREAD="$OPTARG";;
 		o) OUTDIR="$OPTARG";;
 		s) PREFIX="$OPTARG";;
 		m) MODE="$OPTARG";;
+        p) SPARK="$OPTARG";;
 		h) usage;;
 		?) usage;;
     esac
@@ -29,10 +31,19 @@ infq2=`echo $FQFile|cut -f 2 -d ','`
 outdir=${OUTDIR:-'./'}
 samname=${PREFIX:-'GATKtest'}
 thread=${THREAD:-'10'}
+
+if [ ! -d "$outdir" ]  
+then  
+    mkdir -p "$outdir"  
+    echo "Directory created: $outdir"  
+else  
+    echo "Directory already exists: $outdir"  
+fi  
+
 logfile=$outdir/LUSH_pipeline_$(date +"%Y%m%d%H%M").log
 echo -e "Input configuration:\n\tFQ1: $infq1\n\tFQ2: $infq2\n\tOUTDIR: $outdir\n\tPREFIX: $samname\n\tTHREAD: $thread\nSee more detail in $logfile \n"
 # Log file
-#exec >$logfile 2>&1
+exec >$logfile 2>&1
 
 #Some parameters to be provided by the user
 #1. software  
@@ -61,7 +72,6 @@ check_path()
 			exit 1
 		fi
 	done
-
 }
 
 check_error() 
@@ -134,9 +144,23 @@ run "$bwa_cmd" BWA-alignment
 sort_cmd="$samtools sort -@ $thread $outdir/bwaMem/$samname.raw.bam -o $outdir/bwaMem/$samname.sorted.bam"
 run "$sort_cmd" Samtools_Sort
 
+
+if [ "${SPARK}" = "Y" ] ;then
+    MARKDUP="MarkDuplicatesSpark --conf spark.local.dir=$outdir/MarkDuplicates/tmp"
+    BQSR="BaseRecalibratorSpark --conf spark.local.dir=$outdir/BQSR/tmp"
+    APPBQSR="ApplyBQSRSpark --conf spark.local.dir=$outdir/BQSR/tmp"
+	HC="HaplotypeCallerSpark --conf spark.local.dir=$outdir/HC/tmp"
+else
+    MARKDUP="MarkDuplicates"
+    BQSR="BaseRecalibrator"
+    APPBQSR="ApplyBQSR"
+	HC="HaplotypeCaller"
+fi
+
 ### MarkDuplicates
 mkdir -p $outdir/MarkDuplicates
-markdup_cmd1="$java -Xmx6g -XX:ParallelGCThreads=4 -XX:MaxPermSize=512m -XX:-UseGCOverheadLimit -jar $gatk MarkDuplicates -I $outdir/bwaMem/$samname.sorted.bam  \
+mkdir -p $outdir/MarkDuplicates/tmp
+markdup_cmd1="$java -Xmx6g -XX:ParallelGCThreads=4 -XX:MaxPermSize=512m -XX:-UseGCOverheadLimit -jar $gatk $MARKDUP -I $outdir/bwaMem/$samname.sorted.bam  \
  -M $outdir/MarkDuplicates/$samname.sorted.bam.mat \
  -O $outdir/MarkDuplicates/$samname.sorted.rmdup.bam"
 markdup_cmd2="$samtools index -@ $thread $outdir/MarkDuplicates/$samname.sorted.rmdup.bam"
@@ -144,7 +168,8 @@ run "$markdup_cmd1 && $markdup_cmd2" GATK_MarkDuplicates
 
 ###BQSR
 mkdir -p $outdir/BQSR
-bqsr_cmd1="$java -Xmx6g -XX:ParallelGCThreads=4 -jar $gatk BaseRecalibrator \
+mkdir -p $outdir/BQSR/tmp
+bqsr_cmd1="$java -Xmx6g -XX:ParallelGCThreads=4 -jar $gatk $BQSR \
  -R $fasta  \
  -I $outdir/MarkDuplicates/$samname.sorted.rmdup.bam \
  --known-sites $db_bqsr_mills \
@@ -152,7 +177,7 @@ bqsr_cmd1="$java -Xmx6g -XX:ParallelGCThreads=4 -jar $gatk BaseRecalibrator \
  --known-sites $db_bqsr_dbsnp \
  -O $outdir/BQSR/$samname.recal.table"
 
-bqsr_cmd2="$java -Xmx6g -XX:ParallelGCThreads=4 -jar $gatk ApplyBQSR \
+bqsr_cmd2="$java -Xmx6g -XX:ParallelGCThreads=4 -jar $gatk $APPBQSR \
  -R $fasta  \
  -I $outdir/MarkDuplicates/$samname.sorted.rmdup.bam --bqsr-recal-file $outdir/BQSR/$samname.recal.table \
  -O $outdir/BQSR/$samname.sorted.rmdup.bqsr.bam"
@@ -161,12 +186,14 @@ run "$bqsr_cmd1 && $bqsr_cmd2" GATK_BQSR
 
 ### HaplotypeCaller
 mkdir -p $outdir/HC
-hc_cmd="$java -Dsamjdk.use_async_io_read_samtools=false -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=false -Xss4m -jar $gatk HaplotypeCaller \
+mkdir -p $outdir/HC/tmp
+
+hc_cmd="$java -Dsamjdk.use_async_io_read_samtools=false -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=false -Xss4m -jar $gatk $HC \
  --pcr-indel-model NONE \
  -R $fasta \
  -I $outdir/BQSR/$samname.sorted.rmdup.bqsr.bam\
  -O $outdir/HC/$samname.g.vcf.gz"
-hcg_cmd="$java -Dsamjdk.use_async_io_read_samtools=false -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=false -Xss4m -jar $gatk HaplotypeCaller \
+hcg_cmd="$java -Dsamjdk.use_async_io_read_samtools=false -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=false -Xss4m -jar $gatk $HC \
  -ERC GVCF \
  --pcr-indel-model NONE \
  -R $fasta \

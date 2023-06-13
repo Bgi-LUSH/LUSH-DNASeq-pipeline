@@ -8,7 +8,7 @@ usage() {
     echo "    THREAD, the number of thread [10]"
     echo "    OUTDIR, the path of outdir [./]"
     echo "    PREFIX, the prefix of outputfile [LUSHtest]"
-	echo "    MODE, GVCF or not [Y/N]"
+	echo "    use GVCF mode or not [Y/N]"
     exit 1
 }
 
@@ -28,6 +28,15 @@ fqconfig=$FQCONF
 outdir=${OUTDIR:-'./'}
 samname=${PREFIX:-'LUSHtest'}
 thread=${THREAD:-'10'}
+
+if [ ! -d "$outdir" ]  
+then  
+    mkdir -p "$outdir"  
+    echo "Directory created: $outdir"  
+else  
+    echo "Directory already exists: $outdir"  
+fi  
+
 logfile=$outdir/LUSH_pipeline_$(date +"%Y%m%d%H%M").log
 echo -e "Input configuration:\n\tFQCONF: $fqconfig\n\tOUTDIR: $outdir\n\tPREFIX: $samname\n\tTHREAD: $thread\nSee more detail in $logfile \n"
 # Log file
@@ -36,10 +45,10 @@ exec >$logfile 2>&1
 #Some parameters to be provided by the user
 #1. software  
 bin=/USER_HOME  # Fill it according to the user's real directory
-lush_aligner=$bin/LUSH_toolkit-Aligner-V2.0.0/lush_aligner1_lmem
-lush_sdk=$bin/LUSH_toolkit-BQSR-V2.2.0/lush_sdk
-lush_hc=$bin/LUSH_toolkit-HC-V1.2.2/lush-hc
-LUSH_GenotypeGVCFs=$bin/LUSH_toolkit-GenotypeGVCFs-V1.1.0/LUSH_GenotypeGVCFs
+lush_aligner=$bin/LUSH_toolkit-Aligner/lush_aligner
+lush_sdk=$bin/LUSH_toolkit-BQSR/lush_bqsr
+lush_hc=$bin/LUSH_toolkit-HC/lush_hc
+LUSH_GenotypeGVCFs=$bin/LUSH_toolkit-GenotypeGVCFs/lush_genotypegvcfs
 samtools=$bin/samtools
 #2. Reference files
 db=/USER_HOME  #Fill it according to the user's real directory
@@ -129,12 +138,12 @@ run "$align_cmd1 && $align_cmd2" LUSH_Aligner
 
 ### LUSH BQSR
 mkdir -p $outdir/LUSH_BQSR
-export LD_LIBRARY_PATH=$bin/LUSH_toolkit-BQSR-V2.2.0:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$bin/LUSH_toolkit-BQSR:$LD_LIBRARY_PATH
 bqsr_cmd="$lush_sdk \
  --bam_path $outdir/Lush_aligner/$samname.sort.dup.bam \
  --out_dir $outdir/LUSH_BQSR  \
- --plugin_path $bin/LUSH_toolkit-BQSR-V2.2.0/libbqsr.so \
- --producer_number 2 --worker_number 21 --wes_qc 0 \
+ --plugin_path $bin/LUSH_toolkit-BQSR/libbqsr.so \
+ --producer_number 2 --worker_number 21 \
  --fasta $fasta \
  --known_site $db_bqsr_mills \
  --known_site $db_bqsr_1000g \
@@ -145,7 +154,7 @@ run "$bqsr_cmd" LUSH_BQSR
 
 ### LUSH HC
 mkdir -p $outdir/LUSH_HC
-export LD_LIBRARY_PATH=$bin/LUSH_toolkit-HC-V1.2.2:$LD_LIBRARY_PATH
+
 hc_cmd="$lush_hc \
 	--pcr-indel-model NONE \
 	--native-active-region-threads 3 --native-main-spend-threads 16 \
@@ -163,12 +172,12 @@ gvcf_cmd="$LUSH_GenotypeGVCFs $outdir/LUSH_HC/$samname.g.vcf.gz $outdir/LUSH_HC/
 if [ "${MODE}" == "Y" ] ;then
 	# echo "$hcg_cmd" LUSH_HC-GVCF-mode
 	# echo "$gvcf_cmd" LUSH_GenotypeGVCFs
-	export LD_LIBRARY_PATH=$bin/LUSH_toolkit-HC-V1.2.2:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=$bin/LUSH_toolkit-HC:$LD_LIBRARY_PATH
 	run "$hcg_cmd" LUSH_HC-GVCF-mode
-	export LD_LIBRARY_PATH=$bin/LUSH_toolkit-GenotypeGVCFs-V1.1.0:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=$bin/LUSH_toolkit-GenotypeGVCFs:$LD_LIBRARY_PATH
 	run "$gvcf_cmd" LUSH_GenotypeGVCFs
 else
 	# echo "$hc_cmd" LUSH_HC
-	export LD_LIBRARY_PATH=$bin/LUSH_toolkit-HC-V1.2.2:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=$bin/LUSH_toolkit-HC:$LD_LIBRARY_PATH
 	run "$hc_cmd" LUSH_HC
 fi
