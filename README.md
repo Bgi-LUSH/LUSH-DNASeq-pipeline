@@ -95,27 +95,34 @@ LUSH_HC is a C/C++ re-implementation of the GATK HaplotypeCaller.
 
 Common parameters：
 ```
---intervals,-L	One or more genomic intervals over which to operate. Default value: null 
---native-active-region-threads	How many active-region threads implementation use.  Default value: 1, Possible values: 1-10 
---native-main-spend-threads	How many workers threads are consumed per active-region-thread. Default value: 30, Possible values: 1-100  
---pcr-indel-model	The PCR indel model to use  Default value: CONSERVATIVE. Possible values: {NONE, HOSTILE, AGGRESSIVE, CONSERVATIVE} 
---interval-padding	Amount of padding (in bp) to add to each interval you are including. Default value: 0 
---max-reads-per-alignment-start	Maximum number of reads to retain per alignment start position. Reads above this threshold will be downsampled. Default value: 10, Possible values: 10-200
---base-quality-score-threshold	Base qualities below this threshold will be reduced to the minimum. Default value: 18
---emit-ref-confidence	Mode for emitting reference confidence scores. Default value: NONE. Possible values: {NONE, GVCF}
---gvcf-gq-bands	Exclusive upper bounds for reference confidence GQ bands (must be in [1, 100] and specified in increasing order). 
---help,-h	Print usage information and exit
+Required:
+  -I, --input <file1> <file2> ...             input file paths
+  -O, --output <file>                         output file path
+  -R, --reference <file>                      reference file path
+Options:
+  -H, --help                                  display help message
+  -V, --version                               display version message
+  -L, --interval <file>                       interval file path
+  -P, --interval-padding <int>                interval padding size, must be a non-negative integer (default: 0)
+  -Q, --base-quality-score-threshold <int>    base qualities threshold, must be in [6, 127](default: 18)
+  -D, --max-reads-depth <int>                 maximum reads depth per alignment start position, must be a non-negative integer,set to 0 to disable(default: 50)
+  -G, --gvcf-gq-bands <int1> <int2>...        specify GQ bands for merging non-variant sites in GVCF mode, must be in [1, 100], (default: 1, 2, 3,... 60, 70, 80, 90, 99)
+      --nthreads <int>                        number of threads to use, must be in [1, 128] (default: 30)
+      --pcr-indel-model <str>                 PCR indel model, available options: {NONE, HOSTILE, CONSERVATIVE, AGGRESSIVE} (default: CONSERVATIVE) 
+      --emit-ref-confidence <str>             emit reference confidence score mode (default: NONE) available options: {NONE, BP_RESOLUTION, GVCF}
+      --nstreampool <int> iostream pool size, must be in [1, 20] (default: 10)
+      --inspect-reads strictly inspect input reads (default: false)
+      --compression-level compression level, must be in [0, 9] (default: 6)
+
 ```
 
 Example:
 ```BASH
 mkdir -p ./outdir
 export LD_LIBRARY_PATH=./bin/LUSH_toolkit-HC:$LD_LIBRARY_PATH
-./bin/LUSH_toolkit-HC/lush_hc \
+./bin/LUSH_toolkit-HC/lush_hc HaplotypeCaller \
         --pcr-indel-model NONE \
-        --native-active-region-threads 3 \
-        --native-main-spend-threads 16 \
-        -I /INPUT_PATH/NA12878.sort.dup.BQSR.bam \
+        -I /INPUT_PATH/NA12878.sort.dup.bam \
         -R hg19.fa \
         -O ./outdir/NA12878.vcf.gz
 ```
