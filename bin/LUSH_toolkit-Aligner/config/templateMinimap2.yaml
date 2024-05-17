@@ -1,0 +1,23 @@
+# update: 2024-01-26 V1.7.6
+# 注释参数仅供示例使用, 此配置仅作模板使用，请勿在此文件直接更改，
+name: Minimap2Tools
+fq_reader:
+  # 是否开启校验, 填true/false 默认为[true] BOOL
+  check: true
+minimap2:
+  # 索引表路径
+  index: /data/lush-dev/shijiashuai/data/index/minimap2/hg19/hg19_ref_pe.mmi
+  # PE文件用分号;分隔, 支持输入多组文件。rg信息可选，建议rg内容用英文双引号包裹
+  i:
+    - fq: /data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_1_s1.fq;/data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_2_s1.fq
+      rg: "@RG\\tID:id-1\\tSM:sm-1\\tLB:lib1\\tPL:MGI"
+    - fq: /data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_1_s2.fq;/data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_2_s2.fq
+      rg: "@RG\\tID:id-2\\tSM:sm-2\\tLB:lib2\\tPL:MGI"
+  # 输出结果的路径
+  o: /data/lush-dev/shijiashuai/out/lush_aligner/Minimap2Tools/results/out.bam
+  # 指定worker的数量。默认值是3。实际线程数 thread = t * 10。
+  t: 5
+  # fastq文件读取的批次大小,默认为[80000] INT
+  batch_size: 80000
+  # 指定比对算法。minimap2支持多种比对算法，包括map-ont、map-pb、asm5、asm10、asm20、splice和sr等。x参数用于指定使用哪种算法进行比对。
+  x: sr

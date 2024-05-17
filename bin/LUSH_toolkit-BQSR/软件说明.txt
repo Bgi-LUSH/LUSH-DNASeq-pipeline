@@ -1,0 +1,55 @@
+版本说明
+产品名称：LUSH_toolkit-BQSR
+产品版本号：2.2.1
+发版日期：2023-6-26
+Program: lush_sdk
+Version:[LUSH_toolkit-BQSR-V2.2.1]:40fa134ab733f4c0f5fd15c2f9ea6e1df043c6b2
+软件开发工具包、动态库以及相应的MD5： 
+67fb0d12d26cd6b99318f0b3fbc85475 libbqsr.so
+42a55cb553676ebacaa38f48b6c97858  libdeflate.so.0
+8aaa8939dcb10ba1e75ceb981358c688  libhts.so.3
+263267a3dd871b2e72e8d43d790f179a  lush_sdk
+
+1.版本说明：
+在 WGS、WES 分析中，变异检测是一个极度依赖测序碱基质量值的步骤，碱基质量值它 来自于测序图像数据的 base calling，基本上是由测序仪和测序系统决定，但是碱基质量值容 易被外界因素影响，往往部分区域的碱基质量值是不准确的，因此就需要重新校正碱基质量值。BQSR （Base Quality Score Recalibration）通过机器学习的方法构建测序碱基的错误率模型，再对这些碱基的质量值进行相应的调整。但是原版 BQSR 性能较差，BQSR_Spark 又较不稳定，为 满足业务需求，LUSH-BQSR 对原版 BQSR 进行软件重构，使用 C/C++重写BQSR 功能，极大地减少了 BQSR 流程的运行时间，同时保证了核心功能代码自主化。LUSHBQSR 通过不 同的参数与配置文件适配 WGS 流程与 WES 流程。 
+1）增加程序参数错误校验
+i.	判断bam、fasta、fai、bed、known_site、region_path文件是否存在，是否有读权限，条件不成立，打印，程序退出
+ii.	判断out_dir目录是否存在，是否有读和写权限，条件不成立，打印，程序退出
+iii.	判断bam与fasta文件是否匹配，不匹配，打印，退出
+iv.	producer_number、worker_number、writer_thread参数设置默认值；
+v.	调整参数顺序，框架参数必须位于插件参数前，且框架参数内部最后参数必须为plugin_path，若顺序错误，打印，程序退出
+vi.	注册信号处理函数SIGINT和SIGTERM，如程序在运行过程中遭遇异常中断（如被kill 或Ctrl+C），识别中断信号，打印，程序退出
+vii.	程序有exit()退出的地方，加打印提示
+
+2.运行示例：
+科服WGS/WES：
+export LD_LIBRARY_PATH=./
+./lush_sdk --bam_path bam --out_dir $outdir --producer_number 2 --worker_number 35 --plugin_path libbqsr.so  --writer_thread 150 --pr_one_bam 1 --fasta hg19.fasta --known_site ${known_site1}--known_site ${known_site2} --known_site ${known_site3}
+
+临床WES：
+export LD_LIBRARY_PATH=./
+./lush_sdk --bam_path bam --out_dir $outdir --worker_number 24 --plugin_path libbqsr.so  --fasta hg19.fasta --known_site dbsnp_138.hg19.vcf --known_site Mills_and_1000G_gold_standard.indels.hg19.sites.vcf --bed for500_region.bed --ip 500 --quantize_qual 10 --quantize_qual 20 --quantize_qual 30 
+注：
+LUSH-BQSR工具包下含有底层框架——lush_sdk、相关库文件——libbqsr.so
+参数之间存在顺序关系，即框架参数应该位于插件参数前，且框架参数内部最后参数必须为plugin_path
+参数--producer_number决定拆分BAM输出的数量，如--producer_number 2会输出BQSR0.bam和BQSR1.bam；如果使用参数--pr_one_bam，多个输出将合并为一个BQSR.bam输出，且--pr_one_bam的值无影响
+
+3.参数说明：
+	框架参数：
+	--out_dir			STR          		输出路径
+	--bam_path		STR		BAM文件路径
+	--producer_number		INT		生产者数量	
+	--worker_number		INT 		每个生产者的线程数
+  	--plugin_path		STR		库文件路径  
+	插件参数：
+	--fasta			STR		参考基因组路径
+	--bed			STR		BED文件路径	
+	--known_site 		STR		已知位点数据库
+	--pr_one_bam		INT		多生产者时，将默认拆分BAM输出改成合并BAM输出，0为拆分输出，1为合并输出
+	--writer_thread		INT		写辅助线程
+	--ip                		INT		Amount of padding (in bp) to add to each interval you are including
+  	--bam_index		         		If true, create a BAM/CRAM index when writing a coordinate-sorted BAM/CRAM file
+  	--quantize_qual     		INT		Use static quantized quality scores to a given number of levels (with -bqsr)
+
+
+

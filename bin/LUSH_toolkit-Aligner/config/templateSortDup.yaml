@@ -1,0 +1,34 @@
+# update: 2024-01-26 V1.7.6
+# 注释参数仅供示例使用, 此配置仅作模板使用，请勿在此文件直接更改，
+name: SortDuplicate
+sort_dup:
+  # 同时生成Fragbam的线程数
+  frag_bam_thread: 4
+  # 一个Fragbam包含的bambatch个数
+  frag_bam_size: 25
+  # 批次大小,默认为[80000] INT
+  batch_size: 80000
+  # 输入文件路径，支持输入多个bam文件
+  i:
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr1.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr2.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr3.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr4.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr5.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr6.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr7.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr8.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr9.bam
+    - /data/lush-dev/shijiashuai/data/bam/cuts/HG001_WES_100X_chr10.bam
+  # 输出结果的路径
+  o: /data/lush-dev/shijiashuai/out/lush_aligner/SortDuplicate/results/out.bam
+  # 核心逻辑的线程数
+  t: 48
+  # 临时文件路径，需要有读写权限
+  z: /data/lush-dev/shijiashuai/tmp
+  # bam切分模式：0不切分，1按照匹配上和未匹配上切分，2按照染色体切分 [默认值：0]
+  segment_mode: 0
+  # 是否开启Bam去重 [默认值：true]
+  is_mark_duplicate: true
+  # tmp_sdb字段，0为原始bam格式，1为sdb压缩格式 [默认值：0]
+  tmp_sdb: 0

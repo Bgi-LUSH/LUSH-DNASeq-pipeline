@@ -1,0 +1,91 @@
+# update: 2024-01-26 V1.7.6
+# 注释参数仅供示例使用, 此配置仅作模板使用，请勿在此文件直接更改，
+name: BwaMem2
+fq_reader:
+  # 是否开启校验, 填true/false 默认为[true] BOOL
+  check: true
+bwa_mem2:
+  # 参考序列路径
+  index: /data/lush-dev/yourui/Data/ref/hg19/ref-new/hg19.fasta
+  # PE文件用分号;分隔, 支持输入多组文件。rg信息可选，建议rg内容用英文双引号包裹
+  i:
+    - fq: /data/lush-dev/yourui/Data/lush_aligner1/fq/r.1.fq;/data/lush-dev/yourui/Data/lush_aligner1/fq/r.2.fq
+      rg: "@RG\\tID:id-1\\tSM:sm-2\\tLB:lib1\\tPL:MGI"
+    - fq: /data/lush-dev/yourui/Data/lush_aligner1/fq/r.3.fq;/data/lush-dev/yourui/Data/lush_aligner1/fq/r.4.fq
+      rg: "@RG\\tID:id-2\\tSM:sm-3\\tLB:lib2\\tPL:MGI"
+  o: /data/lush-dev/yourui/Data/lush_aligner1/out/bwamem2/bwamem2.bam
+  # bwa mem比对的线程数 [1] INT
+  t: 48
+  # 每批处理的数据量 [80000] INT
+  # batch_size: 80000
+  # minimum seed length [19] INT
+  # k: 19
+  # band width for banded alignment [100] INT
+  # w: 100
+  # off-diagonal X-dropoff [100] INT
+  # d: 100
+  # look for internal seeds inside a seed longer than {-k} * FLOAT [1.5] FLOAT
+  # r: 1.1
+  # seed occurrence for the 3rd round seeding [20] INT
+  # y: 20
+  # skip seeds with more than INT occurrences [500] INT
+  # c: 500
+  # drop chains shorter than FLOAT fraction of the longest overlapping chain  [0.50] FLOAT
+  # D: 0.50
+  # discard a chain if seeded bases shorter than INT [0] INT
+  # W: 0
+  # perform at most INT rounds of mate rescues for each read [50] INT
+  # m: 100
+  # skip mate rescue [BOOL: true/false] [false]
+  # S: false
+  # skip pairing; mate rescue performed unless -S also in use [BOOL: true/false] [false]
+  # P: false
+  # score for a sequence match, which scales options -TdBOELU unless overridden [1] INT
+  # A: 1
+  # penalty for a mismatch [4] INT
+  # B: 4
+  # gap open penalties for deletions and insertions [6,6] INT[,INT]
+  # O: 6,6
+  # gap extension penalty; a gap of size k cost '{-O} + {-E}*k' [1,1] INT[,INT]
+  # E: 1,1
+  # penalty for 5'- and 3'-end clipping [5,5] INT[,INT]
+  # L: 5,5
+  # penalty for an unpaired read pair [17] INT
+  # U: 17
+  # read type. Setting -x changes multiple parameters unless overridden [null] STR
+  # pacbio: -k17 -W40 -r10 -A1 -B1 -O1 -E1 -L0  (PacBio reads to ref)
+  # ont2d: -k14 -W20 -r10 -A1 -B1 -O1 -E1 -L0  (Oxford Nanopore 2D-reads to ref)
+  # intractg: -B9 -O16 -L5  (intra-species contigs to ref)
+  # x:
+  # smart pairing (ignoring in2.fq) [BOOL: true/false] [false]
+  # p: false
+  # insert STR to header if it starts with @; or insert lines in FILE [null] STR/FILE
+  # H:
+  # treat ALT contigs as part of the primary assembly (i.e. ignore <idxbase>.alt file) [BOOL: true/false] [false]
+  # j: false
+  # for split alignment, take the alignment with the smallest coordinate as primary [BOOL: true/false] [false]
+  # 5: false
+  # don't modify mapQ of supplementary alignments [BOOL: true/false] [false]
+  # q: false
+  # process INT input bases in each batch regardless of nThreads (for reproducibility) [] INT
+  # K:
+  # verbosity level: 1=error, 2=warning, 3=message, 4=debugging [3] INT
+  # v: 3
+  # minimum score to output [30] INT
+  # T: 30
+  # if there are <INT hits with score >80%% of the max score, output all in XA [5,200] INT[,INT]
+  # h: 5,200
+  # output all alignments for SE or unpaired PE [BOOL: true/false] [false]
+  # a: false
+  # append FASTA/FASTQ comment to SAM output [BOOL: true/false] [false]
+  # C: false
+  # output the reference FASTA header in the XR tag [BOOL: true/false] [false]
+  # V: false
+  # use soft clipping for supplementary alignments [BOOL: true/false] [false]
+  # Y: false
+  # mark shorter split hits as secondary [BOOL: true/false] [false]
+  # M: false
+  # specify the mean, standard deviation (10% of the mean if absent), max
+  #                     (4 sigma from the mean if absent) and min of the insert size distribution.
+  #                     FR orientation only. [inferred] FLOAT[,FLOAT[,INT[,INT]]]
+  # I:

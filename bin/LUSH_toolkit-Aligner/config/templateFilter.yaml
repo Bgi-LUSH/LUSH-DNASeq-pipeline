@@ -1,0 +1,47 @@
+# update: 2024-01-26 V1.7.6
+# 注释参数仅供示例使用, 此配置仅作模板使用，请勿在此文件直接更改，
+name: FqFilter
+fq_reader:
+  # 是否开启校验, 填true/false 默认为[true] BOOL
+  check: true
+filter:
+  # PE文件用分号;分隔, 支持输入多组文件。
+  i:
+    - fq: /data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_1_s1.fq;/data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_2_s1.fq
+    - fq: /data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_1_s2.fq;/data/lush-dev/shijiashuai/data/fastq/CL100012105_L1_1_2_s2.fq
+  # 输出结果的路径
+  o: /data/lush-dev/shijiashuai/out/lush_aligner/FqFilter/results
+  # fastq文件读取的批次大小, 默认为[80000] INT
+  batch_size: 80000
+  # 线程数 默认为[1] INT
+  t: 10
+  # 短序列接头
+  adapter:
+     - AAGTCGGAGGCCAAGCGGTCTTAGGAAGACAA
+     - AAGTCGGATCGTAGCCATGTCGTTCTGTGAGCCAAGGAGTTG
+  # adapter's shortest match ratio(default: [0.5])
+  # m: 0.8
+  # the max mismatch number when match the adapter(default: [1])
+  b: 2
+  # low quality threshold(default: [5])
+  l: 12
+  # low quality rate(default: [0.5])
+  q: 0.5
+  # mean quality threshold(default: [0])
+  # w: 20
+  # N rate threshold(default: [0.05])
+  n: 0.1
+  # A rate threshold, 0 means not filter(default: [0])
+  # a: 0.9
+  # quality offset, for example: illumina18 is 33, 0 means infered by program(default: [0])
+  s: 33
+  # 是否合并统计Fq, 默认：false
+  d: false
+  # 截取fastQ文件总共的前n条，浮点数，单位 M(1000 * 1000). 默认为0, 表示不进行截取
+  c: 0
+  # trim开关，填true或者false，默认值 [false]
+  adapter_trim: false
+  # trim的最小长度，INT 默认值 [30]
+  min_read_len: 30
+  # trim字符串：STRING，格式 "INT, INT, INT, INT" 默认值 ["0, 0, 0, 0"]
+  trim: "0, 0, 0, 0"
