@@ -8,11 +8,11 @@ LUSH_Aligner integrates four functional modules: preprocessing, alignment to gen
 
 LUSH_Aligner first needs to construct the index for the reference genome using the following command:
 ```
-./bin/LUSH_toolkit-Aligner/lush_aligner index ./example_data/ref/chrM.fa
+./bin/LUSH_toolkit-Aligner/lush_aligner1_share FilterBwaSortDup FilterBwaSortDup.yaml
 ```
 
 LUSH_Aligner uses the filter4mem command to perform filtering, alignment, sorting alignments and marking duplicates.  
-Common parameters for LUSH_Aligner filter4mem：
+Common parameters for lush_aligner1_share FilterBwaSortDup in the yaml file：
 ```
 --adapter1/-2	STR		3' adapter sequence
 --adapter2/-3	STR 	5' adapter sequence [only for PE reads]
@@ -44,13 +44,7 @@ config file for fq1 file and fq2 file should like this (tab-split):
 Example:
 ```BASH
 mkdir -p ./outdir/ ./outdir/tem
-./bin/LUSH_toolkit-Aligner/lush_aligner filter4mem \
-        -6 ./outdir/ \
-        -n 0.1 -J 0.5 -l 12 -g 2 -b 2 -t 20 -M \
-        -r hg19.fa \
-        -o ./outdir/NA12878.sort.dup.bam \
-        -Z ./outdir/tem \
-        -i ./example_data/lush.config
+./bin/LUSH_toolkit-Aligner/lush_aligner1_share FilterBwaSortDup FilterBwaSortDup.yaml
 
 ```
 We provide a quick run script in the test/ directory. You can directly navigate to the test directory by typing "cd ./test/" and then execute "sh ./test_LUSH-Aligner.sh".
@@ -142,7 +136,7 @@ Example:
 ```
 mkdir -p ./outdir
 export LD_LIBRARY_PATH=./bin/LUSH_toolkit-GenotypeGVCFs:$LD_LIBRARY_PATH
-./bin/LUSH_toolkit-GenotypeGVCFs/lush_genotypegvcfs /INPUT_PATH/NA12878.g.vcf.gz ./outdir/NA12878.vcf.gz 10
+./bin/LUSH_toolkit-GenotypeGVCFs/lush_genotypegvcfs -I lush.g.vcf.gz  -O lush.vcf.gz  --stand-call-conf 10 -t 52
 ```
 We provide a quick run script in the test/ directory. You can directly navigate to the test directory by typing "cd ./test/" and then execute "sh ./test_LUSH-GenotypeGVCFs.sh".
 
