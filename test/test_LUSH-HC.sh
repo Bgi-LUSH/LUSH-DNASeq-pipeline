@@ -4,4 +4,5 @@ export LD_LIBRARY_PATH=../bin/LUSH_toolkit-HC:$LD_LIBRARY_PATH
         --pcr-indel-model NONE \
         -I ../example_data/NA12878.sort.dup.bam \
         -R ../example_data/ref/chrM.fa \
-        -O ./outdir/NA12878.g.vcf.gz
+        -O ./outdir/NA12878.g.vcf.gz \
+	--nthreads 52
