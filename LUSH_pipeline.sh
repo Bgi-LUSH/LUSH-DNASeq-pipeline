@@ -157,13 +157,13 @@ mkdir -p $outdir/LUSH_HC
 
 hc_cmd="$lush_hc HaplotypeCaller \
 	--pcr-indel-model NONE \
-	--native-active-region-threads 3 --native-main-spend-threads 16 \
+	--nthreads $thread \
 	-I $outdir/LUSH_BQSR/$samname.sort.dup.BQSR.bam \
 	-R $fasta -O $outdir/LUSH_HC/$samname.g.vcf.gz"
 hcg_cmd="$lush_hc HaplotypeCaller \
 	--pcr-indel-model NONE \
 	--emit-ref-confidence GVCF \
-	--native-active-region-threads 3 --native-main-spend-threads 16 \
+	--nthreads $thread \
 	-I $outdir/LUSH_BQSR/$samname.sort.dup.BQSR.bam \
 	-R $fasta -O $outdir/LUSH_HC/$samname.g.vcf.gz"
 
