@@ -1,6 +1,27 @@
 # Fast and accurate DNASeq Variant Calling workflow composed of LUSH-toolkits.
 The LUSH pipeline reconstructs analysis tools SOAPnuke, BWA and GATK using C/C++, and employs a new parallel computing architecture. Several redundant intermediate steps of reading and writing the same file are eliminated in the LUSH pipeline, which greatly avoids unnecessary I/O throughput and improves CPU utilization. LUSH pipeline provides far superior computational speed to GATK/GATKSpark while maintaining a high level of accuracy comparable to that of GATK.
 
+## Quickly Run within Docker
+If you encounter environmental issues when running the Lush toolkit on your system, try run in docker.
+```
+## 1. pull docker image
+docker pull centos:centos7.6.1810
+
+## 2. create container lush_dnaseq
+docker run -it -d -h test -u root -v /YOUR_PATH/LUSH-DNASeq-pipeline/:/usr/LUSH-DNASeq-pipeline/ --name lush_dnaseq centos:centos7.6.1810 
+
+## 3. go into container lush_dnaseq
+docker exec -it lush_dnaseq /bin/bash
+
+## 4. run LUSH_pipeline or LUSH_toolkits
+cd /usr/LUSH-DNASeq-pipeline/test
+sh test_LUSH_pipeline.sh  ## pipeline
+sh test_LUSH-Aligner.sh
+sh test_LUSH-BQSR.sh
+sh test_LUSH-HC.sh
+sh test_LUSH-GenotypeGVCFs.sh
+```
+
 ## USAGE for LUSH toolkits
 
 ###  USAGE for LUSH_Aligner 
@@ -152,27 +173,6 @@ export LD_LIBRARY_PATH=./bin/LUSH_toolkit-GenotypeGVCFs:$LD_LIBRARY_PATH
 ```
 We provide a quick run script in the test/ directory. You can directly navigate to the test directory by typing "cd ./test/" and then execute "sh ./test_LUSH-GenotypeGVCFs.sh".
 
-
-### Quick run in docker
-If you encounter environmental issues when running the Lush toolkit on your system, try run in docker.
-```
-## 1. pull docker image
-docker pull centos:centos7.6.1810
-
-## 2. create container lush_dnaseq
-docker run -it -d -h test -u root -v /YOUR_PATH/LUSH-DNASeq-pipeline/:/usr/LUSH-DNASeq-pipeline/ --name lush_dnaseq centos:centos7.6.1810 
-
-## 3. go into container lush_dnaseq
-docker exec -it lush_dnaseq /bin/bash
-
-## 4. run LUSH_pipeline
-cd /usr/LUSH-DNASeq-pipeline/test
-sh test_LUSH_pipeline.sh  ## pipeline
-sh test_LUSH-Aligner.sh
-sh test_LUSH-BQSR.sh
-sh test_LUSH-HC.sh
-sh test_LUSH-GenotypeGVCFs.sh
-```
 
 ## Run the LUSH/GATK pipeline
 ###  Run the LUSH pipeline
