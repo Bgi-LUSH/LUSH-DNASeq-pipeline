@@ -4,11 +4,13 @@ The LUSH pipeline reconstructs analysis tools SOAPnuke, BWA and GATK using C/C++
 ## Quickly Run within Docker
 If you encounter environmental issues when running the Lush toolkit on your system, try run in docker.
 ```
-## 1. pull docker image
+## 1. git clone repository and pull docker image
+git clone https://github.com/Bgi-LUSH/LUSH-DNASeq-pipeline.git
 docker pull centos:centos7.6.1810
 
 ## 2. create container lush_dnaseq
 docker run -it -d -h test -u root -v /YOUR_PATH/LUSH-DNASeq-pipeline/:/usr/LUSH-DNASeq-pipeline/ --name lush_dnaseq centos:centos7.6.1810 
+# Replace "/YOUR_PATH/LUSH-DNASeq-pipeline/" with your directory path 
 
 ## 3. go into container lush_dnaseq
 docker exec -it lush_dnaseq /bin/bash
