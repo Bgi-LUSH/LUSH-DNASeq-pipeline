@@ -8,3 +8,6 @@ export LD_LIBRARY_PATH=../bin/LUSH_toolkit-BQSR:$LD_LIBRARY_PATH
  --fasta ../example_data/ref/chrM.fa \
  --known_site ../example_data/test.KnowSizes.vcf \
  --writer_thread 5 --pr_one_bam 1
+
+
+echo ALL done!

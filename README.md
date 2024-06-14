@@ -95,6 +95,7 @@ LUSH_HC is a C/C++ re-implementation of the GATK HaplotypeCaller.
 
 Common parameters：
 ```
+Usage: lush-hc <tool> [-option]
 Required:
   -I, --input <file1> <file2> ...             input file paths
   -O, --output <file>                         output file path
@@ -105,14 +106,19 @@ Options:
   -L, --interval <file>                       interval file path
   -P, --interval-padding <int>                interval padding size, must be a non-negative integer (default: 0)
   -Q, --base-quality-score-threshold <int>    base qualities threshold, must be in [6, 127](default: 18)
-  -D, --max-reads-depth <int>                 maximum reads depth per alignment start position, must be a non-negative integer,set to 0 to disable(default: 50)
-  -G, --gvcf-gq-bands <int1> <int2>...        specify GQ bands for merging non-variant sites in GVCF mode, must be in [1, 100], (default: 1, 2, 3,... 60, 70, 80, 90, 99)
+  -D, --max-reads-depth <int>                 maximum reads depth per alignment start position (default: 50)
+                                              must be a non-negative integer,set to 0 to disable
+  -G, --gvcf-gq-bands <int1> <int2>...        specify GQ bands for merging non-variant sites in GVCF mode
+                                              must be in [1, 100], (default: 1, 2, 3,... 60, 70, 80, 90, 99)
       --nthreads <int>                        number of threads to use, must be in [1, 128] (default: 30)
-      --pcr-indel-model <str>                 PCR indel model, available options: {NONE, HOSTILE, CONSERVATIVE, AGGRESSIVE} (default: CONSERVATIVE) 
-      --emit-ref-confidence <str>             emit reference confidence score mode (default: NONE) available options: {NONE, BP_RESOLUTION, GVCF}
-      --nstreampool <int> iostream pool size, must be in [1, 20] (default: 10)
-      --inspect-reads strictly inspect input reads (default: false)
-      --compression-level compression level, must be in [0, 9] (default: 6)
+      --pcr-indel-model <str>                 PCR indel model (default: CONSERVATIVE)
+                                              available options: {NONE, HOSTILE, CONSERVATIVE, AGGRESSIVE}
+      --emit-ref-confidence <str>             emit reference confidence score mode (default: NONE)
+                                              available options: {NONE, BP_RESOLUTION, GVCF}
+      --nstreampool <int>                     iostream pool size, must be in [1, 20] (default: 10)
+      --inspect-reads                         strictly inspect input reads (default: false)
+      --old-pairhmm-engine                    use intel pairhmm engine (default: lush pairhmm engine)
+      --compression-level                     compression level, must be in [0, 9] (default: 6)
 
 ```
 
@@ -146,7 +152,27 @@ export LD_LIBRARY_PATH=./bin/LUSH_toolkit-GenotypeGVCFs:$LD_LIBRARY_PATH
 ```
 We provide a quick run script in the test/ directory. You can directly navigate to the test directory by typing "cd ./test/" and then execute "sh ./test_LUSH-GenotypeGVCFs.sh".
 
-**If you encounter environmental issues when running the Lush toolkit on your system, you can try using the CentOS base image for execution, as Lush toolkit runs well in this environment. For example: `docker pull centos:centos7.6.1810`**
+
+### Quick run in docker
+If you encounter environmental issues when running the Lush toolkit on your system, try run in docker.
+```
+## 1. pull docker image
+docker pull centos:centos7.6.1810
+
+## 2. create container lush_dnaseq
+docker run -it -d -h test -u root -v /YOUR_PATH/LUSH-DNASeq-pipeline/:/usr/LUSH-DNASeq-pipeline/ --name lush_dnaseq centos:centos7.6.1810 
+
+## 3. go into container lush_dnaseq
+docker exec -it lush_dnaseq /bin/bash
+
+## 4. run LUSH_pipeline
+cd /usr/LUSH-DNASeq-pipeline/test
+sh test_LUSH_pipeline.sh  ## pipeline
+sh test_LUSH-Aligner.sh
+sh test_LUSH-BQSR.sh
+sh test_LUSH-HC.sh
+sh test_LUSH-GenotypeGVCFs.sh
+```
 
 ## Run the LUSH/GATK pipeline
 ###  Run the LUSH pipeline
@@ -171,6 +197,10 @@ fq.config should be like this:
 /PATH/MGISEQ2000_PCR-free_NA12878_30X_1.fq.gz   NA12878_30X_1   @RG\tID:NA12878_30X.1\tLB:NA12878_30X\tSM:NA12878_30X\tPL:COMPLETE\tCN:BGI
 /PATH/MGISEQ2000_PCR-free_NA12878_30X_2.fq.gz   NA12878_30X_2
 ```
+**Note: Inside LUSH_pipeline.sh, the software path and reference sequence file on lines 47-58 need to be replaced with your current actual path and filename.**  
+
+We provide a quick run script in the test/ directory. You can directly navigate to the test directory by typing "cd ./test/" and then execute "sh ./test_LUSH_pipeline.sh". 
+
 
 ### Run the GATK/GATKSpark pipeline
 

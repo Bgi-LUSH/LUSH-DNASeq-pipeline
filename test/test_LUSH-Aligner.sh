@@ -7,3 +7,4 @@ mkdir -p ./outdir/ ./outdir/tem
         -Z ./outdir/tem \
         -i ../example_data/lush.config
 
+echo ALL done!
