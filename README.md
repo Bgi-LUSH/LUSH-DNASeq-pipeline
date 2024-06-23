@@ -24,6 +24,12 @@ sh test_LUSH-HC.sh
 sh test_LUSH-GenotypeGVCFs.sh
 ```
 
+you can also build the latest version of the LUSH Docker image using the Dockerfile. just run :
+```
+git clone https://github.com/Bgi-LUSH/LUSH-DNASeq-pipeline.git
+docker build -t lush-toolkit:latest  -f LUSH-DNASeq-pipeline/Dockerfile  .
+```
+
 ## USAGE for LUSH toolkits
 
 ###  USAGE for LUSH_Aligner 
