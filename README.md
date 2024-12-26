@@ -248,3 +248,10 @@ Haplotype_Comparison.sh -i LUSHtest.vcf.gz,GATKtest.vcf.gz -t 40 -o ./ -s sample
 ```
 
 **Note that only sample scripts are provided here. Actual operation requires replacing the paths of the corresponding software and configuration files as required.**
+
+
+## Citation:
+If you use LUSH in your research, please cite:
+
+[Wang, T., Zhang, Y., Wang, H. et al. Fast and accurate DNASeq variant calling workflow composed of LUSH toolkit. Hum Genomics 18, 114 (2024). https://doi.org/10.1186/s40246-024-00666-w](https://doi.org/10.1186/s40246-024-00666-w)
+
